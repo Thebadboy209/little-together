@@ -1,3 +1,4 @@
+Little Together 3D Online
 # Little Together – 3D Cozy World (playable prototype)
 
 Game thử nghiệm 3D isometric dùng **Three.js** (tải qua CDN), HTML/CSS/JS và **Firebase Realtime Database** (tùy chọn để 2 người chơi online). Không cần Node.js, npm hoặc build tool. Tối ưu mobile với joystick, hỗ trợ WASD trên desktop.
