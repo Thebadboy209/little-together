@@ -1,0 +1,39 @@
+{
+  "rules": {
+    "rooms": {
+      "$room": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.child('host').val() === auth.uid && newData.child('status').val() === 'waiting' && newData.child('players').child(auth.uid).exists()",
+        "host": {
+          ".validate": "newData.isString()"
+        },
+        "status": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid && data.val() === 'waiting' && newData.val() === 'playing' && data.parent().child('players').hasChildren([data.parent().child('host').val()])",
+          ".validate": "newData.val() === 'waiting' || newData.val() === 'playing'"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "players": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && (data.exists() || (data.parent().parent().child('host').exists() && data.parent().parent().child('status').val() === 'waiting'))",
+            ".validate": "newData.hasChildren(['name','color','x','z','facing','fish','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length <= 24 && newData.child('name').val().length > 0 && newData.child('color').isNumber() && newData.child('x').isNumber() && newData.child('x').val() >= -15 && newData.child('x').val() <= 15 && newData.child('z').isNumber() && newData.child('z').val() >= -12 && newData.child('z').val() <= 12 && newData.child('facing').isNumber() && newData.child('fish').isNumber() && newData.child('fish').val() >= 0 && newData.child('updatedAt').isNumber()",
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "emotes": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('players').child(auth.uid).exists()",
+            ".validate": "newData.hasChildren(['type','at']) && newData.child('type').val() === 'wave' && newData.child('at').isNumber()"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
