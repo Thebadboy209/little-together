@@ -3,36 +3,35 @@
     "rooms": {
       "$room": {
         ".read": "auth != null",
-        ".write": "auth != null && !data.exists() && newData.child('host').val() === auth.uid && newData.child('status').val() === 'waiting' && newData.child('players').child(auth.uid).exists()",
+        ".write": "auth != null && ((!data.exists() && newData.child('host').val() === auth.uid && newData.child('status').val() === 'waiting' && newData.child('slots').child('A').child('uid').val() === auth.uid && !newData.child('slots').child('B').exists()) || (data.exists() && data.child('host').val() === auth.uid && !newData.exists()))",
         "host": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() && newData.val().length > 0"
         },
         "status": {
-          ".write": "auth != null && data.parent().child('host').val() === auth.uid && data.val() === 'waiting' && newData.val() === 'playing' && data.parent().child('players').hasChildren([data.parent().child('host').val()])",
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid && data.val() === 'waiting' && newData.val() === 'playing' && data.parent().child('slots').child('A').exists() && data.parent().child('slots').child('B').exists()",
           ".validate": "newData.val() === 'waiting' || newData.val() === 'playing'"
         },
         "createdAt": {
           ".validate": "newData.isNumber()"
         },
-        "players": {
-          "$uid": {
-            ".read": "auth != null && auth.uid === $uid",
-            ".write": "auth != null && auth.uid === $uid && (data.exists() || (data.parent().parent().child('host').exists() && data.parent().parent().child('status').val() === 'waiting'))",
-            ".validate": "newData.hasChildren(['name','color','x','z','facing','fish','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length <= 24 && newData.child('name').val().length > 0 && newData.child('color').isNumber() && newData.child('x').isNumber() && newData.child('x').val() >= -15 && newData.child('x').val() <= 15 && newData.child('z').isNumber() && newData.child('z').val() >= -12 && newData.child('z').val() <= 12 && newData.child('facing').isNumber() && newData.child('fish').isNumber() && newData.child('fish').val() >= 0 && newData.child('updatedAt').isNumber()",
-            "$other": {
-              ".validate": false
-            }
+        "slots": {
+          "$slot": {
+            ".write": "auth != null && ($slot === 'A' || $slot === 'B') && ((data.exists() && data.child('uid').val() === auth.uid && (!newData.exists() || newData.child('uid').val() === auth.uid)) || (!data.exists() && $slot === 'B' && newData.child('uid').val() === auth.uid && data.parent().parent().child('status').val() === 'waiting' && data.parent().child('A').exists()))",
+            ".validate": "($slot === 'A' || $slot === 'B') && newData.hasChildren(['uid','name','avatar','hat','x','z','facing','action','actionAt','updatedAt']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 20 && newData.child('avatar').isString() && newData.child('hat').isString() && newData.child('x').isNumber() && newData.child('x').val() >= -44 && newData.child('x').val() <= 44 && newData.child('z').isNumber() && newData.child('z').val() >= -37 && newData.child('z').val() <= 37 && newData.child('facing').isNumber() && newData.child('action').isString() && newData.child('actionAt').isNumber() && newData.child('updatedAt').isNumber()",
+            "uid": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" },
+            "avatar": { ".validate": "newData.val() === 'bunny' || newData.val() === 'bear' || newData.val() === 'cat' || newData.val() === 'hedge' || newData.val() === 'pudding'" },
+            "hat": { ".validate": "newData.isString() && newData.val().length <= 32" },
+            "x": { ".validate": "newData.isNumber() && newData.val() >= -44 && newData.val() <= 44" },
+            "z": { ".validate": "newData.isNumber() && newData.val() >= -37 && newData.val() <= 37" },
+            "facing": { ".validate": "newData.isNumber()" },
+            "action": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "actionAt": { ".validate": "newData.isNumber()" },
+            "updatedAt": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
           }
         },
-        "emotes": {
-          "$uid": {
-            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('players').child(auth.uid).exists()",
-            ".validate": "newData.hasChildren(['type','at']) && newData.child('type').val() === 'wave' && newData.child('at').isNumber()"
-          }
-        },
-        "$other": {
-          ".validate": false
-        }
+        "$other": { ".validate": false }
       }
     }
   }
